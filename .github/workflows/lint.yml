@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
           submodules: recursive
 
       - name: Run clang-tidy
@@ -38,6 +39,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -57,6 +59,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
   
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -76,6 +79,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
   
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -95,6 +99,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
 
       - name: Setup Python
         uses: actions/setup-python@v5

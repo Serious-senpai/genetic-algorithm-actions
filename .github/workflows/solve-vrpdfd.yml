@@ -30,6 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
           submodules: recursive
 
       - name: Setup Python
@@ -94,6 +95,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
+          token: ${{ secrets.PAT }}
           submodules: recursive
 
       - name: Setup Python
