@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "priority-split-compare"
+          ref: "main"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "priority-split-compare"
+          ref: "main"
           token: ${{ secrets.PAT }}
 
       - name: Setup Python
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "priority-split-compare"
+          ref: "main"
           token: ${{ secrets.PAT }}
   
       - name: Setup Python
@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "priority-split-compare"
+          ref: "main"
           token: ${{ secrets.PAT }}
   
       - name: Setup Python
@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "priority-split-compare"
+          ref: "main"
           token: ${{ secrets.PAT }}
 
       - name: Setup Python
