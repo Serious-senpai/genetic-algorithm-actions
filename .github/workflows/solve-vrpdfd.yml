@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "main"
+          ref: "8d538d22861e01a13c958642140db2d730b8d368"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
@@ -96,7 +96,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "main"
+          ref: "8d538d22861e01a13c958642140db2d730b8d368"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
