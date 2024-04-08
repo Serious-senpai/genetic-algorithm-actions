@@ -1,0 +1,134 @@
+name: Tune hyperparameters
+
+on:
+  push:
+    paths-ignore:
+    - "**.md"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: Run algorithm
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        problem: ["50.10.1", "50.10.3", "50.20.1", "50.20.3", "50.30.1", "50.30.3", "50.40.1", "50.40.3"]
+        mutation-rate: [0.1, 0.5, 0.9]
+        reset-after: [10, 15, 20]
+        local-search-batch: [20, 50, 80]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: Serious-senpai/genetic-algorithm
+          ref: "priority-split-compare"
+          token: ${{ secrets.PAT }}
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build binary files
+        run: scripts/build.sh
+
+      - name: Run optimizer
+        run: |
+          exitcode=0
+          set +e
+          for i in $(seq 0 9)
+          do
+            echo "---------- RUN #$i ----------"
+
+            timeout --preserve-status --signal=INT 1200 \
+            python vrpdfd.py ${{ matrix.problem }} \
+            --mutation-rate ${{ matrix.mutation-rate }} \
+            --reset-after ${{ matrix.reset-after }} \
+            --local-search-batch ${{ matrix.local-search-batch }} \
+            --dump "output-${{ matrix.problem }}-${{ matrix.mutation-rate }}-${{ matrix.reset-after }}-${{ matrix.local-search-batch }}-$i.json" \
+            "pickle-${{ matrix.problem }}-${{ matrix.mutation-rate }}-${{ matrix.reset-after }}-${{ matrix.local-search-batch }}-$i.pkl" \
+            "plot-${{ matrix.problem }}-${{ matrix.mutation-rate }}-${{ matrix.reset-after }}-${{ matrix.local-search-batch }}-$i.png" \
+            --log "log-${{ matrix.problem }}-${{ matrix.mutation-rate }}-${{ matrix.reset-after }}-${{ matrix.local-search-batch }}-$i.csv" \
+            --extra "run #$i"
+
+            if [ "$?" -ne 0 ]; then
+              exitcode=1
+            fi
+
+          done
+
+          exit $exitcode
+
+# It is also possible to run the algorithm 10 times in parallel (by delegating to 10 child processes and add `wait` at the end),
+# but it will affect the computation time
+
+      - name: Upload solutions
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution-${{ matrix.problem }}-${{ matrix.mutation-rate }}-${{ matrix.reset-after }}-${{ matrix.local-search-batch }}
+          path: output-*.json
+
+      - name: Upload logs and pickled results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-${{ matrix.problem }}-${{ matrix.mutation-rate }}-${{ matrix.reset-after }}-${{ matrix.local-search-batch }}
+          path: |
+            log-*.csv
+            pickle-*.pkl
+            plot-*.png
+
+  summary:
+    name: Summarize solutions
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: run
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: Serious-senpai/genetic-algorithm
+          ref: "priority-split-compare"
+          token: ${{ secrets.PAT }}
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build binary files
+        run: scripts/build.sh
+
+      - name: Download solutions
+        uses: actions/download-artifact@v4
+        with:
+          path: vrpdfd-summary/
+          pattern: solution-*
+          merge-multiple: true
+
+      - name: Summarize solutions
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE
+          python scripts/vrpdfd-summary.py
+
+      - name: Upload summary as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary
+          path: |
+            vrpdfd-summary/output-*.json
+            vrpdfd-summary/vrpdfd-summary.csv
