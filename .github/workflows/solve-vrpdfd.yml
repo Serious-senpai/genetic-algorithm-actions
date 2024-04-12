@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "main"
+          ref: "remove-stuck-penalty"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
@@ -96,7 +96,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "main"
+          ref: "remove-stuck-penalty"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
