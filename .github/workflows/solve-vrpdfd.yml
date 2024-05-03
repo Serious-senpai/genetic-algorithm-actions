@@ -1,9 +1,6 @@
 name: Solve VRPDFD
 
-on:
-  push:
-    paths-ignore:
-    - "**.md"
+on: push
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -60,7 +57,9 @@ jobs:
             --log "log-${{ matrix.problem }}-$i.csv" \
             --extra "run #$i"
 
-            if [ "$?" -ne 0 ]; then
+            run_exitcode=$?
+            if [ "$run_exitcode" -ne 0 ]; then
+              echo "::warning::Exit code $run_exitcode at run index #$i"
               exitcode=1
             fi
 
