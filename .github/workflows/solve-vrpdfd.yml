@@ -51,14 +51,14 @@ jobs:
           do
             echo "---------- RUN #$i ----------"
 
-            timeout --preserve-status --signal=INT 1200 \
+            timeout --preserve-status --signal=INT 1500 \
             python vrpdfd.py ${{ matrix.problem }} \
             --dump "output-${{ matrix.problem }}-$i.json" "pickle-${{ matrix.problem }}-$i.pkl" "plot-${{ matrix.problem }}-$i.png" \
             --log "log-${{ matrix.problem }}-$i.csv" \
             --extra "run #$i"
 
             run_exitcode=$?
-            if [ "$run_exitcode" -ne 0 ]; then
+            if [ "$run_exitcode" -ne 0 ] && [ "$run_exitcode" -ne 130 ]; then
               echo "::warning::Exit code $run_exitcode at run index #$i"
               exitcode=1
             fi
