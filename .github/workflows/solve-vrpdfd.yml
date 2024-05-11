@@ -58,7 +58,7 @@ jobs:
             --extra "run #$i"
 
             run_exitcode=$?
-            if [ "$run_exitcode" -ne 0 ]; then
+            if [ "$run_exitcode" -ne 0 ] && [ "$run_exitcode" -ne 130 ]; then
               echo "::warning::Exit code $run_exitcode at run index #$i"
               exitcode=1
             fi
