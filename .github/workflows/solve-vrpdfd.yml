@@ -51,7 +51,7 @@ jobs:
           do
             echo "---------- RUN #$i ----------"
 
-            timeout --preserve-status --signal=INT 1200 \
+            timeout --preserve-status --signal=INT 1500 \
             python vrpdfd.py ${{ matrix.problem }} \
             --dump "output-${{ matrix.problem }}-$i.json" "pickle-${{ matrix.problem }}-$i.pkl" "plot-${{ matrix.problem }}-$i.png" \
             --log "log-${{ matrix.problem }}-$i.csv" \
