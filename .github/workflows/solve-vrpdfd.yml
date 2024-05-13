@@ -75,14 +75,14 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: solution-${{ matrix.problem }}
+          name: solution-${{ matrix.problem }}-${{ matrix.loop }}
           path: output-*.json
 
       - name: Upload logs and pickled results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: log-${{ matrix.problem }}
+          name: log-${{ matrix.problem }}-${{ matrix.loop }}
           path: |
             log-*.csv
             pickle-*.pkl
