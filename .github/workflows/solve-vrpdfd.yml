@@ -47,11 +47,11 @@ jobs:
         run: |
           exitcode=0
           set +e
-          for i in $(seq 0 9)
+          for i in $(seq 0 4)
           do
             echo "---------- RUN #$i ----------"
 
-            timeout --preserve-status --signal=INT 1500 \
+            timeout --preserve-status --signal=INT 3000 \
             python vrpdfd.py ${{ matrix.problem }} \
             --dump "output-${{ matrix.problem }}-$i.json" "pickle-${{ matrix.problem }}-$i.pkl" "plot-${{ matrix.problem }}-$i.png" \
             --log "log-${{ matrix.problem }}-$i.csv" \
