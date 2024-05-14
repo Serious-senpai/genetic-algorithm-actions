@@ -50,17 +50,18 @@ jobs:
           set +e
           for i in $(seq 0 4)
           do
-            echo "---------- RUN #$((5 * ${{ matrix.loop }} + i)) ----------"
+            index=$((5 * ${{ matrix.loop }} + i))
+            echo "---------- RUN #$index ----------"
 
             timeout --preserve-status --signal=INT 3000 \
             python vrpdfd.py ${{ matrix.problem }} \
-            --dump "output-${{ matrix.problem }}-$i.json" "pickle-${{ matrix.problem }}-$i.pkl" "plot-${{ matrix.problem }}-$i.png" \
-            --log "log-${{ matrix.problem }}-$i.csv" \
-            --extra "run #$i"
+            --dump "output-${{ matrix.problem }}-$index.json" "pickle-${{ matrix.problem }}-$index.pkl" "plot-${{ matrix.problem }}-$index.png" \
+            --log "log-${{ matrix.problem }}-$index.csv" \
+            --extra "run #$index"
 
             run_exitcode=$?
             if [ "$run_exitcode" -ne 0 ] && [ "$run_exitcode" -ne 130 ]; then
-              echo "::warning::Exit code $run_exitcode at run index #$i"
+              echo "::warning::Exit code $run_exitcode at run index #$index"
               exitcode=1
             fi
 
@@ -125,6 +126,7 @@ jobs:
           python scripts/vrpdfd-summary.py
 
       - name: Upload summary as artifacts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: summary
