@@ -24,13 +24,14 @@ jobs:
           "100.10.1", "100.10.2", "100.10.3", "100.10.4", "100.20.1", "100.20.2", "100.20.3", "100.20.4", "100.30.1", "100.30.2", "100.30.3", "100.30.4", "100.40.1", "100.40.2", "100.40.3", "100.40.4",
           "150.10.1", "150.10.2", "150.10.3", "150.10.4", "150.20.1", "150.20.2", "150.20.3", "150.20.4", "150.30.1", "150.30.2", "150.30.3", "150.30.4", "150.40.1", "150.40.2", "150.40.3", "150.40.4",
           "200.10.1", "200.10.2", "200.10.3", "200.10.4", "200.20.1", "200.20.2", "200.20.3", "200.20.4", "200.30.1", "200.30.2", "200.30.3", "200.30.4", "200.40.1", "200.40.2", "200.40.3", "200.40.4"]
+        loop: [0, 1]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "main"
+          ref: "priority-split-compare"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
@@ -47,19 +48,20 @@ jobs:
         run: |
           exitcode=0
           set +e
-          for i in $(seq 0 9)
+          for i in $(seq 0 4)
           do
-            echo "---------- RUN #$i ----------"
+            index=$((5 * ${{ matrix.loop }} + i))
+            echo "---------- RUN #$index ----------"
 
-            timeout --preserve-status --signal=INT 1500 \
+            timeout --preserve-status --signal=INT 3000 \
             python vrpdfd.py ${{ matrix.problem }} \
-            --dump "output-${{ matrix.problem }}-$i.json" "pickle-${{ matrix.problem }}-$i.pkl" "plot-${{ matrix.problem }}-$i.png" \
-            --log "log-${{ matrix.problem }}-$i.csv" \
-            --extra "run #$i"
+            --dump "output-${{ matrix.problem }}-$index.json" "pickle-${{ matrix.problem }}-$index.pkl" "plot-${{ matrix.problem }}-$index.png" \
+            --log "log-${{ matrix.problem }}-$index.csv" \
+            --extra "run #$index"
 
             run_exitcode=$?
             if [ "$run_exitcode" -ne 0 ] && [ "$run_exitcode" -ne 130 ]; then
-              echo "::warning::Exit code $run_exitcode at run index #$i"
+              echo "::warning::Exit code $run_exitcode at run index #$index"
               exitcode=1
             fi
 
@@ -74,14 +76,14 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: solution-${{ matrix.problem }}
+          name: solution-${{ matrix.problem }}-${{ matrix.loop }}
           path: output-*.json
 
       - name: Upload logs and pickled results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: log-${{ matrix.problem }}
+          name: log-${{ matrix.problem }}-${{ matrix.loop }}
           path: |
             log-*.csv
             pickle-*.pkl
@@ -98,7 +100,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Serious-senpai/genetic-algorithm
-          ref: "main"
+          ref: "priority-split-compare"
           token: ${{ secrets.PAT }}
           submodules: recursive
 
@@ -124,6 +126,7 @@ jobs:
           python scripts/vrpdfd-summary.py
 
       - name: Upload summary as artifacts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: summary
