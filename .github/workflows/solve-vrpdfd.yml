@@ -47,7 +47,7 @@ jobs:
           do
             echo "---------- RUN #$i ----------"
 
-            timeout --preserve-status --signal=INT 1500 python listen.py.py ${{ matrix.problem }} >> result-${{ matrix.problem }}.txt
+            timeout --preserve-status --signal=INT 1500 python listen.py ${{ matrix.problem }} >> result-${{ matrix.problem }}.txt
 
             run_exitcode=$?
             if [ "$run_exitcode" -ne 0 ] && [ "$run_exitcode" -ne 130 ]; then
