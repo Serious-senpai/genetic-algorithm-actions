@@ -29,21 +29,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: Serious-senpai/genetic-algorithm
+          repository: Serious-senpai/CEC_2024
           ref: "main"
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.CECPAT }}
           submodules: recursive
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Build binary files
-        run: scripts/build.sh
+      - name: Build binary file
+        working-directory: src
+        run: g++ -O3 main.cpp -o main.exe
 
       - name: Run optimizer
+        working-directory: src
         run: |
           exitcode=0
           set +e
@@ -51,11 +47,7 @@ jobs:
           do
             echo "---------- RUN #$i ----------"
 
-            timeout --preserve-status --signal=INT 1500 \
-            python vrpdfd.py ${{ matrix.problem }} \
-            --dump "output-${{ matrix.problem }}-$i.json" "pickle-${{ matrix.problem }}-$i.pkl" "plot-${{ matrix.problem }}-$i.png" \
-            --log "log-${{ matrix.problem }}-$i.csv" \
-            --extra "run #$i"
+            timeout --preserve-status --signal=INT 1500 python listen.py.py ${{ matrix.problem }} >> result-${{ matrix.problem }}.txt
 
             run_exitcode=$?
             if [ "$run_exitcode" -ne 0 ] && [ "$run_exitcode" -ne 130 ]; then
@@ -74,18 +66,8 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: solution-${{ matrix.problem }}
-          path: output-*.json
-
-      - name: Upload logs and pickled results
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: log-${{ matrix.problem }}
-          path: |
-            log-*.csv
-            pickle-*.pkl
-            plot-*.png
+          name: result-${{ matrix.problem }}
+          path: src/result-${{ matrix.problem }}.txt
 
   summary:
     name: Summarize solutions
@@ -97,36 +79,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: Serious-senpai/genetic-algorithm
+          repository: Serious-senpai/CEC_2024
           ref: "main"
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.CECPAT }}
           submodules: recursive
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Build binary files
-        run: scripts/build.sh
 
       - name: Download solutions
         uses: actions/download-artifact@v4
         with:
-          path: vrpdfd-summary/
-          pattern: solution-*
+          path: src
+          pattern: result-*
           merge-multiple: true
 
       - name: Summarize solutions
-        run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE
-          python scripts/vrpdfd-summary.py
+        working-directory: src
+        run: python summary.py
 
       - name: Upload summary as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: summary
-          path: |
-            vrpdfd-summary/output-*.json
-            vrpdfd-summary/vrpdfd-summary.csv
+          path: src/summary.csv
